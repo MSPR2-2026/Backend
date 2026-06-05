@@ -10,7 +10,9 @@
   "author": "OpenFaaS Ltd",
   "license": "MIT",
   "dependencies": {
+    "argon2": "^0.44.0",
     "generate-password": "^1.7.1",
+    "nano": "^11.0.5",
     "qrcode": "^1.5.4"
   }
 }

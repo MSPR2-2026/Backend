@@ -7,4 +7,8 @@ functions:
     lang: node24
     handler: ./generate-password
     image: ghcr.io/mspr2-2026/generate-password:latest
-
+    environment:
+      COUCHDB_URL: "http://couchdb-couchdb.default:5984"
+    secrets:
+      - couchdb-user
+      - couchdb-password
