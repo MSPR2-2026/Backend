@@ -12,3 +12,12 @@ functions:
     secrets:
       - couchdb-user
       - couchdb-password
+  generate-2fa:
+    lang: node24
+    handler: ./generate-2fa
+    image: ghcr.io/mspr2-2026/generate-2fa:latest
+    environment:
+      COUCHDB_URL: "http://couchdb-couchdb.default:5984"
+    secrets:
+      - couchdb-user
+      - couchdb-password
