@@ -6,5 +6,5 @@ functions:
   generate-password:
     lang: node24
     handler: ./generate-password
-    image: celerii/generate-password:latest
+    image: ghcr.io/mspr2-2026/generate-password:latest
 
