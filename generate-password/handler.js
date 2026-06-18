@@ -25,7 +25,7 @@ module.exports = async (event, context) => {
   const passwordHash = await hashPassword(password);
 
   try {
-    await storeUserPassword(db, event.body.user, passwordHash);
+    await storeUserPassword(db, event.body.user, passwordHash, event.body.resetPassword ?? false);
   } catch (err) {
     if (err.error === "conflict") {
       return context
@@ -57,9 +57,26 @@ async function generateQrCode(password) {
  * Store the user and its associated password hash to the db
  * @param {string} user
  * @param {string} passwordHash
+ * @param {boolean} resetPassword
  */
-async function storeUserPassword(db, user, passwordHash) {
-  await db.insert({ _id: user, password: passwordHash });
+async function storeUserPassword(db, user, passwordHash, resetPassword) {
+  const gendate = new Date().toISOString();
+
+  try {
+    // Attempt to insert new user with the generated password
+    await db.insert({ _id: user, password: passwordHash, gendate, expired: false });
+  } catch (err) {
+    // The user already exists but we want to reset their password,
+    // update their password to the newly generated one
+    // and reset the generation date and expired status
+    if (err.error === "conflict" && resetPassword) {
+      const doc = await db.get(user);
+
+      await db.insert({ ...doc, password: passwordHash, gendate, expired: false });
+    } else {
+      throw err;
+    }
+  }
 }
 
 /**

@@ -25,7 +25,13 @@ module.exports = async (event, context) => {
   try {
     await storeTotpSecret(db, event.body.user, totpSecret);
   } catch (err) {
-    return context.fail(err);
+    if (err.error === "not_found") {
+      return context
+        .status(400)
+        .succeed(`No user found for username ${event.body.user}`);
+    } else {
+      return context.fail(err);
+    }
   }
 
   const qrCodeUrl = await generateTotpQrCode(event.body.user, totpSecret);
@@ -54,12 +60,13 @@ async function generateTotpQrCode(user, totpSecret) {
 }
 
 /**
- * TODO: add totp secret to user document
  * @param {string} user 
  * @param {string} totpSecret 
  */
 async function storeTotpSecret(db, user, totpSecret) {
-  
+  const doc = await db.get(user);
+
+  await db.insert({ ...doc, mfa: totpSecret });
 }
 
 /**
