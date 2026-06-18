@@ -11,6 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "argon2": "^0.44.0",
+    "dayjs": "^1.11.21",
     "nano": "^11.0.5",
     "otplib": "^13.4.1"
   }

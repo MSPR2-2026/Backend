@@ -4,7 +4,7 @@
  * @typedef {Object} UserDoc
  * @prop {string} passwordHash
  * @prop {string} totpSecret
- * @prop {Date} gendate
+ * @prop {import("dayjs").Dayjs} gendate
  * @prop {boolean} expired
  */
 
@@ -103,8 +103,20 @@ function verifyPassword(password, userDoc) {
  * @returns the expired status
  */
 async function userPasswordExpired(db, userDoc) {
-  // TODO: check if password is older than 6 months and update expired status + return it
-  return userDoc.expired;
+  const dayjs = require("dayjs");
+
+  if (userDoc.expired) {
+    return true;
+  }
+
+  // Check if password generation date is older than 6 months
+  if (userDoc.gendate.add(6, 'months').isBefore(dayjs())) {
+    await db.insert({ ...userDoc, expired: true });
+
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -113,12 +125,14 @@ async function userPasswordExpired(db, userDoc) {
  * @returns {Promise<UserDoc>}
  */
 async function getUserDoc(db, user) {
+  const dayjs = require("dayjs");
+
   const doc = await db.get(user);
 
   return {
     passwordHash: doc.password,
     totpSecret: doc.mfa,
-    gendate: new Date(doc.gendate),
+    gendate: dayjs(doc.gendate),
     expired: doc.expired,
   };
 }
