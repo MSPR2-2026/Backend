@@ -48,9 +48,9 @@ module.exports = async (event, context) => {
  * @param {string} password
  */
 async function generateQrCode(password) {
-  const qrcode = require('qrcode');
+  const { toDataURL } = require('qrcode');
 
-  return await qrcode.toDataURL(password);
+  return await toDataURL(password);
 }
 
 /**
@@ -84,9 +84,9 @@ async function storeUserPassword(db, user, passwordHash, resetPassword) {
  * @param {string} password
  */
 async function hashPassword(password) {
-  const argon2 = require('argon2');
+  const { hash } = require('argon2');
 
-  return await argon2.hash(password);
+  return await hash(password);
 }
 
 
@@ -94,9 +94,9 @@ async function hashPassword(password) {
  * Generate a password with 24 characters, uppercase letters, lowercases letters, numbers and special symbols
  */
 function generatePassword() {
-  const generator = require('generate-password');
+  const { generate } = require('generate-password');
 
-  return generator.generate({
+  return generate({
     length: 24,
     numbers: true,
     symbols: true,
@@ -146,12 +146,12 @@ async function getCouchdbCredentials() {
  * @param {string} secretName
  */
 async function getSecret(secretName) {
-  const fs = require('node:fs/promises');
+  const { readFile } = require('node:fs/promises');
 
   if (!secretName?.length) return undefined;
 
   try {
-    return await fs.readFile(`/var/openfaas/secrets/${secretName}`, { encoding: 'utf8' });
+    return await readFile(`/var/openfaas/secrets/${secretName}`, { encoding: 'utf8' });
   } catch (err) {
     return undefined;
   }

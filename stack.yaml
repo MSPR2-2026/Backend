@@ -21,3 +21,12 @@ functions:
     secrets:
       - couchdb-user
       - couchdb-password
+  login:
+    lang: node24
+    handler: ./login
+    image: ghcr.io/mspr2-2026/login:latest
+    environment:
+      COUCHDB_URL: "http://couchdb-couchdb.default:5984"
+    secrets:
+      - couchdb-user
+      - couchdb-password
