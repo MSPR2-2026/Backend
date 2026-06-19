@@ -4,7 +4,7 @@ module.exports = async (event, context) => {
   if (!event.body?.user?.length) {
     return context
       .status(400)
-      .succeed("Missing required parameter: user");
+      .succeed(JSON.stringify({ missingParameter: "user", message: "Missing required parameter: user" }));
   }
 
   const couchdbCredentials = await getCouchdbCredentials();
@@ -30,7 +30,7 @@ module.exports = async (event, context) => {
     if (err.error === "conflict") {
       return context
         .status(400)
-        .succeed(`Username ${event.body.user} is already taken`);
+        .succeed(JSON.stringify({ usernameTaken: true, message: `Username ${event.body.user} is already taken` }));
     } else {
       return context.fail(err);
     }
@@ -40,7 +40,7 @@ module.exports = async (event, context) => {
 
   return context
     .status(200)
-    .succeed(JSON.stringify(qrCodeUrl));
+    .succeed(JSON.stringify({ qrcode: qrCodeUrl }));
 }
 
 /**

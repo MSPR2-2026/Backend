@@ -4,7 +4,7 @@ module.exports = async (event, context) => {
   if (!event.body?.user?.length) {
     return context
       .status(400)
-      .succeed("Missing required parameter: user");
+      .succeed(JSON.stringify({ missingParameter: "user", message: "Missing required parameter: user" }));
   }
 
   const couchdbCredentials = await getCouchdbCredentials();
@@ -27,8 +27,8 @@ module.exports = async (event, context) => {
   } catch (err) {
     if (err.error === "not_found") {
       return context
-        .status(400)
-        .succeed(`No user found for username ${event.body.user}`);
+        .status(404)
+        .succeed(JSON.stringify({ message: `No user found for username ${event.body.user}` }));
     } else {
       return context.fail(err);
     }
@@ -38,7 +38,7 @@ module.exports = async (event, context) => {
 
   return context
     .status(200)
-    .succeed(qrCodeUrl);
+    .succeed(JSON.stringify({ qrcode: qrCodeUrl }));
 }
 
 /**

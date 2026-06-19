@@ -12,19 +12,19 @@ module.exports = async (event, context) => {
   if (!event.body?.user?.length) {
     return context
       .status(400)
-      .succeed("Missing required parameter: user");
+      .succeed(JSON.stringify({ missingParameter: "user", message: "Missing required parameter: user" }));
   }
 
   if (!event.body?.password?.length) {
     return context
       .status(400)
-      .succeed("Missing required parameter: password");
+      .succeed(JSON.stringify({ missingParameter: "password", message: "Missing required parameter: password" }));
   }
 
   if (!event.body?.totp?.length) {
     return context
       .status(400)
-      .succeed("Missing required parameter: totp");
+      .succeed(JSON.stringify({ missingParameter: "totp", message: "Missing required parameter: totp" }));
   }
 
   const couchdbCredentials = await getCouchdbCredentials();
@@ -46,8 +46,8 @@ module.exports = async (event, context) => {
   } catch (err) {
     if (err.error === "not_found") {
       return context
-        .status(400)
-        .succeed(`No user found for username ${event.body.user}`);
+        .status(404)
+        .succeed(JSON.stringify({ message: `No user found for username ${event.body.user}` }));
     } else {
       return context.fail(err);
     }
@@ -56,7 +56,7 @@ module.exports = async (event, context) => {
   if (await userPasswordExpired(db, userDoc)) {
     return context
       .status(400)
-      .succeed("Password is expired, please reset your password");
+      .succeed(JSON.stringify({ expired: true, message: "Password is expired, please reset your password" }));
   }
 
   // Verify password and 2FA
@@ -64,13 +64,15 @@ module.exports = async (event, context) => {
     if (!(await verifyPassword(event.body.password, userDoc)) || !(await verifyTotp(event.body.totp, userDoc))) {
       return context
         .status(400)
-        .succeed("Either password or 2FA token is invalid, please try again");
+        .succeed(JSON.stringify({ message: "Either password or 2FA token is invalid, please try again" }));
     }
   } catch (err) {
     return context.fail(err);
   }
 
-  return context.status(200);
+  return context
+    .status(200)
+    .succeed(JSON.stringify({ authenticated: true }));
 }
 
 /**
