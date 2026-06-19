@@ -38,3 +38,10 @@ Install CouchDB and set the necessary OpenFaaS secrets using the provided tasks:
 ```sh
 devenv tasks run "couchdb:setup-secrets"
 ```
+
+## Deploying the functions
+
+Now that everything is setup, you can launch all the functions using:
+```sh
+faas-cli deploy
+```
